@@ -1,0 +1,9 @@
+[project]
+name = "AI_Personal_Content_App"
+version = "0.1.0"
+description = "An AI-powered personal content vault that lets you save images, documents, and notes, search them instantly with semantic intelligence, and chat with your content for quick insights — all with privacy at the core."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.124.0",
+]
