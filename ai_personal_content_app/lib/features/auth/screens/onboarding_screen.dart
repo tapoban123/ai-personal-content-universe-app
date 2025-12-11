@@ -1,5 +1,5 @@
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
-import 'package:ai_personal_content_app/core/theme/app_fonts.dart';
+import 'package:ai_personal_content_app/core/utils/utils.dart';
 import 'package:ai_personal_content_app/features/auth/widgets/custom_auth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,10 +11,7 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        systemNavigationBarColor: AppColors.backgroundColor,
-        statusBarColor: AppColors.backgroundColor,
-      ),
+      value: commonSystemUiOverlayStyle,
       child: Scaffold(
         body: SafeArea(
           child: Padding(

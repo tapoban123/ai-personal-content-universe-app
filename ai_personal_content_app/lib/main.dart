@@ -1,7 +1,9 @@
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
 import 'package:ai_personal_content_app/core/theme/app_fonts.dart';
+import 'package:ai_personal_content_app/core/utils/utils.dart';
 import 'package:ai_personal_content_app/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() {
@@ -13,6 +15,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(commonSystemUiOverlayStyle);
     return ScreenUtilInit(
       designSize: Size(390, 884),
       minTextAdapt: true,
@@ -26,6 +29,12 @@ class MyApp extends StatelessWidget {
             fontFamily: APP_FONT_FAMILY,
             displayColor: Colors.white,
             bodyColor: Colors.white,
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: AppColors.backgroundColor,
+            elevation: 0,
+            surfaceTintColor: AppColors.backgroundColor,
+            shadowColor: AppColors.backgroundColor,
           ),
         ),
         routerConfig: router,
