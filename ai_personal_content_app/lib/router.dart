@@ -1,4 +1,5 @@
 import 'package:ai_personal_content_app/features/auth/screens/onboarding_screen.dart';
+import 'package:ai_personal_content_app/features/home/screens/add_new_content_screen.dart';
 import 'package:ai_personal_content_app/features/home/screens/home_screen.dart';
 import 'package:ai_personal_content_app/features/items/screens/view_item_screen.dart';
 import 'package:ai_personal_content_app/features/profile-and-settings/screens/user_profile_screen.dart';
@@ -11,6 +12,7 @@ class RouteNames {
   static const String onboarding = "/onboarding";
   static const String viewItemOptions = "/view-item";
   static const String userProfile = "/user-profile";
+  static const String addNewContent = "/add-new-content";
 }
 
 final router = GoRouter(
@@ -28,6 +30,10 @@ final router = GoRouter(
     GoRoute(
       path: RouteNames.userProfile,
       builder: (context, state) => UserProfileScreen(),
+    ),
+    GoRoute(
+      path: RouteNames.addNewContent,
+      builder: (context, state) => AddNewContentScreen(),
     ),
   ],
 );

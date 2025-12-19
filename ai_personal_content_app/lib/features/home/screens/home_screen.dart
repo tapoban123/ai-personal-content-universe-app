@@ -19,13 +19,15 @@ class HomeScreen extends StatelessWidget {
         appBar: CustomAppbar(
           title: "Home",
           actions: [Icon(Icons.local_library, color: Colors.white)],
-          leading: Icon(Icons.account_circle),
+          leading: Icon(Icons.account_circle,color: Colors.white,),
           onLeadingTap: () {
             context.push(RouteNames.userProfile);
           },
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            context.push(RouteNames.addNewContent);
+          },
           backgroundColor: AppColors.blueColor,
           shape: CircleBorder(),
           child: Icon(Icons.add, color: Colors.white, size: 28.w),
@@ -34,20 +36,20 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             18.verticalSpace,
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                height: 48.w,
-                padding: EdgeInsets.all(12.w),
-                margin: EdgeInsets.symmetric(horizontal: 12.w),
-                decoration: BoxDecoration(
-                  color: AppColors.blueGreyColor,
-                  borderRadius: BorderRadius.circular(14.r),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 52.h),
+                    backgroundColor: AppColors.blueGreyColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
                 ),
                 child: Row(
                   spacing: 8.w,
                   children: [
-                    Icon(Icons.search_rounded, color: AppColors.inactiveColor),
+                    Icon(Icons.search_rounded, color: AppColors.inactiveColor,size: 24.w,),
                     Text(
                       "Search images, docs and notes...",
                       style: TextStyle(
