@@ -50,6 +50,7 @@ dependencies:
   file_picker: ^10.3.8
   image_picker: ^1.2.1
   flutter_quill: ^11.5.0
+  cunning_document_scanner: ^1.4.0
 
 dev_dependencies:
   flutter_test:
