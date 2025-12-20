@@ -45,7 +45,7 @@ class _NotesEditOrCreateScreenState extends State<NotesEditOrCreateScreen> {
       ),
     );
 
-    file.writeAsString(jsonString);
+    await file.writeAsString(jsonString);
     return file;
   }
 
