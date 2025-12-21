@@ -72,20 +72,20 @@ class AddNewContentScreen extends StatelessWidget {
                   },
                 ),
                 50.verticalSpace,
-                Expanded(
-                  child: BlocBuilder<NewContentsCubit, List<PreviewFileModel>>(
-                    builder: (context, state) {
-                      if (state.isEmpty) {
-                        return SizedBox.shrink();
-                      }
-                      return Stack(
+                BlocBuilder<NewContentsCubit, List<PreviewFileModel>>(
+                  builder: (context, state) {
+                    if (state.isEmpty) {
+                      return SizedBox.shrink();
+                    }
+                    return Expanded(
+                      child: Stack(
                         alignment: Alignment.center,
                         children: [
                           ListView.builder(
                             itemCount: state.length,
                             itemBuilder: (context, index) {
                               final file = state[index];
-
+                                      
                               return _NewContentWidget(
                                 file: file,
                                 index: index,
@@ -100,9 +100,9 @@ class AddNewContentScreen extends StatelessWidget {
                             ),
                           ),
                         ],
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

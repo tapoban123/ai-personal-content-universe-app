@@ -7,6 +7,33 @@ import 'package:intl/intl.dart';
 
 class ViewItemScreen extends StatelessWidget {
   const ViewItemScreen({super.key});
+  //
+  // void _showFoodSearchBottomSheet(BuildContext parentContext) {
+  //
+  //   _scaffoldKey.currentState?.showBottomSheet(enableDrag: false, (
+  //       parentContext,
+  //       ) {
+  //     final screenHeight = MediaQuery.of(context).size.height;
+  //     return ValueListenableBuilder<bool>(
+  //       valueListenable: _isBottomSheetOpen,
+  //       builder: (context, isOpen, _) {
+  //         final targetHeight =
+  //             (isOpen ? _maxFraction : _minFraction) * screenHeight;
+  //         return AnimatedContainer(
+  //           duration: const Duration(milliseconds: 300),
+  //           curve: Curves.easeOut,
+  //           height: targetHeight,
+  //           width: double.infinity,
+  //           decoration: BoxDecoration(
+  //             color: CustomTheme.scaffoldBgColor,
+  //             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //           ),
+  //           child: _FoodSearchBottomSheet(isSheetOpen: isOpen),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
