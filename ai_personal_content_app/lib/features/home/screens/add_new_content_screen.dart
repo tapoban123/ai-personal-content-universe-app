@@ -206,7 +206,9 @@ class _NewContentWidget extends StatelessWidget {
                     )
                   : null,
             ),
-            child: getContentIcon(fileType: file.fileType, iconSize: 60.w),
+            child: file.fileType != ContentFileType.IMAGE
+                ? getContentIcon(fileType: file.fileType, iconSize: 60.w)
+                : null,
           ),
           Expanded(
             child: Column(

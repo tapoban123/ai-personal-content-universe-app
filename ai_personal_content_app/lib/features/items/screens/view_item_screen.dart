@@ -37,7 +37,9 @@ class ViewItemScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final optionsData = [
-      (icon: Icons.chat_outlined, color: null, label: "Chat", onTap: () {}),
+      (icon: Icons.chat_outlined, color: null, label: "Chat", onTap: () {
+        
+      }),
       (icon: Icons.manage_search, color: null, label: "Search", onTap: () {}),
       (icon: Icons.push_pin_outlined, color: null, label: "Pin", onTap: () {}),
       (
