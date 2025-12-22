@@ -1,8 +1,11 @@
 import 'package:ai_personal_content_app/core/common/constants.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_appbar.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
+import 'package:ai_personal_content_app/core/utils/utils.dart';
+import 'package:ai_personal_content_app/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 enum _LayoutType { GRID, LIST }
 
@@ -15,9 +18,11 @@ class ContentLibraryScreen extends StatefulWidget {
 
 class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
   late final ValueNotifier<_LayoutType> _layoutTypeNotifier;
+  late final GlobalKey<ScaffoldState> _scaffoldKey;
 
   @override
   void initState() {
+    _scaffoldKey = GlobalKey();
     _layoutTypeNotifier = ValueNotifier(_LayoutType.GRID);
     super.initState();
   }
@@ -25,6 +30,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: CustomAppbar(
         title: "Library",
         actions: [Icon(Icons.search_outlined, color: Colors.white)],
@@ -56,7 +62,26 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                       ),
                     ],
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    _scaffoldKey.currentState?.showBottomSheet(
+                      (context) => AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                        height: getScreenHeight(context) * 0.5,
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.w,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.deepBlueColor,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 _filterAndSortButton(
                   child: Icon(
@@ -82,7 +107,10 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                             buttonText: "Grid",
                             layoutType: _LayoutType.GRID,
                             onTap: () {
-                              _layoutTypeNotifier.value = _LayoutType.GRID;
+                              if (_layoutTypeNotifier.value !=
+                                  _LayoutType.GRID) {
+                                _layoutTypeNotifier.value = _LayoutType.GRID;
+                              }
                             },
                           ),
                         ),
@@ -92,7 +120,10 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                             buttonText: "List",
                             layoutType: _LayoutType.LIST,
                             onTap: () {
-                              _layoutTypeNotifier.value = _LayoutType.LIST;
+                              if (_layoutTypeNotifier.value !=
+                                  _LayoutType.LIST) {
+                                _layoutTypeNotifier.value = _LayoutType.LIST;
+                              }
                             },
                           ),
                         ),
@@ -184,42 +215,48 @@ class _GridItemsLayout extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 14.w,
         mainAxisSpacing: 14.h,
-        childAspectRatio: 0.75,
+        childAspectRatio: 0.714,
       ),
       itemCount: 10,
-      itemBuilder: (context, index) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            height: 170.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.r),
-              image: DecorationImage(
-                image: NetworkImage(RANDOM_IMAGE_URL),
-                fit: BoxFit.cover,
+      itemBuilder: (context, index) => GestureDetector(
+        onTap: () {
+          context.push(RouteNames.viewItemOptions);
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 170.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.r),
+                image: DecorationImage(
+                  image: NetworkImage(RANDOM_IMAGE_URL),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Text(
-            "Quantum Computing IntroIntroIntroIntroIntroIntro.pdf",
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontVariations: [FontVariation.weight(600)],
+            12.verticalSpace,
+            Text(
+              "Quantum Computing IntroIntroIntroIntroIntroIntro.pdf",
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontVariations: [FontVariation.weight(600)],
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            "PDF",
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppColors.lightGreyColor,
-              fontVariations: [FontVariation.weight(400)],
+            Text(
+              "PDF",
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.lightGreyColor,
+                fontVariations: [FontVariation.weight(400)],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -233,7 +270,9 @@ class _ListItemsLayout extends StatelessWidget {
     return ListView.builder(
       itemCount: 20,
       itemBuilder: (context, index) => ListTile(
-        onTap: () {},
+        onTap: () {
+          context.push(RouteNames.viewItemOptions);
+        },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8.r),
