@@ -2,8 +2,8 @@ import 'package:ai_personal_content_app/core/common/constants.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_appbar.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_button.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
-import 'package:ai_personal_content_app/core/utils/utils.dart';
 import 'package:ai_personal_content_app/router.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,7 @@ class ContentLibraryScreen extends StatefulWidget {
 class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
   late final ValueNotifier<_LayoutType> _layoutTypeNotifier;
   late final GlobalKey<ScaffoldState> _scaffoldKey;
-  final sortOptions = [
+  final _sortOptions = [
     (title: "Recently Added", status: true),
     (title: "Oldest First", status: false),
     (title: "Recently Updated", status: false),
@@ -28,6 +28,19 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
     (title: "Name (Z-A)", status: false),
     (title: "File Size (Largest First)", status: false),
     (title: "File Size (Smallest First)", status: false),
+  ];
+
+  final _filterByFileTypeOptions = [
+    (fileType: "PDF", status: true),
+    (fileType: "Image", status: false),
+    (fileType: "Text", status: true),
+    (fileType: "Note", status: false),
+  ];
+
+  final _filterByTimeOptions = [
+    (time: "Today", status: true),
+    (time: "Last 7 days", status: false),
+    (time: "Last 30 days", status: false),
   ];
 
   @override
@@ -73,7 +86,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                     ],
                   ),
                   onTap: () {
-                    _showSortOptionsSheet(context);
+                    _showFilterOptionsSheet(context);
                   },
                 ),
                 _filterAndSortButton(
@@ -83,7 +96,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                     size: 22.w,
                   ),
                   onTap: () {
-                    _showFilterOptionsSheet(context);
+                    _showSortOptionsSheet(context);
                   },
                 ),
                 Expanded(
@@ -225,13 +238,13 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                   children: [
                     Column(
                       children: List.generate(
-                        sortOptions.length,
+                        _sortOptions.length,
                         (index) => ListTile(
                           contentPadding: EdgeInsets.zero,
                           minTileHeight: 50.h,
                           onTap: () {},
                           title: Text(
-                            sortOptions[index].title,
+                            _sortOptions[index].title,
                             style: TextStyle(
                               color: AppColors.offWhiteColor,
                               fontVariations: [FontVariation.weight(500)],
@@ -244,12 +257,12 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: sortOptions[index].status
+                                color: _sortOptions[index].status
                                     ? AppColors.blueColor
                                     : AppColors.lightBlueGreyColor,
                               ),
                             ),
-                            child: sortOptions[index].status
+                            child: _sortOptions[index].status
                                 ? Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -271,24 +284,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                       onTap: () {},
                     ),
                     10.verticalSpace,
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        overlayColor: AppColors.inactiveColor,
-                        minimumSize: Size(double.infinity, 48.h),
-                      ),
-                      child: Text(
-                        "Clear Sort",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: AppColors.lightGreyColor,
-                          fontVariations: [FontVariation.weight(600)],
-                        ),
-                      ),
-                    ),
+                    _clearSortOrFilterButton("Clear Sort", () {}),
                   ],
                 ),
               ),
@@ -316,44 +312,124 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_headerRow("Filter Options", "FILTER"),
-              12.verticalSpace,
+            children: [
+              _headerRow("Filter Options", "FILTER"),
+              // 12.verticalSpace,
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.w),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "File Type",
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.white,
+                        color: AppColors.offWhiteColor,
                         fontVariations: [FontVariation.weight(600)],
                       ),
                     ),
                     10.verticalSpace,
-                    Card(
-                      color: AppColors.blueColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50.r),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 15.w,
-                          vertical: 8.w,
-                        ),
-                        child: Text(
-                          "PDF",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15.sp,
-                            fontVariations: [FontVariation.weight(600)],
+                    Row(
+                      children: List.generate(
+                        _filterByFileTypeOptions.length,
+                        (index) => Card(
+                          color: _filterByFileTypeOptions[index].status
+                              ? AppColors.blueColor
+                              : AppColors.deepBlueColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.r),
+                            side: !_filterByFileTypeOptions[index].status
+                                ? BorderSide(color: Colors.white10, width: 1.5)
+                                : BorderSide.none,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15.w,
+                              vertical: 8.w,
+                            ),
+                            child: Text(
+                              _filterByFileTypeOptions[index].fileType,
+                              style: TextStyle(
+                                color: _filterByFileTypeOptions[index].status
+                                    ? Colors.white
+                                    : AppColors.lightGreyColor,
+                                fontSize: 15.sp,
+                                fontVariations: [FontVariation.weight(600)],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    16.verticalSpace,
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        "Pinned only",
+                        style: TextStyle(
+                          fontVariations: [FontVariation.weight(500)],
+                        ),
+                      ),
+                      trailing: CupertinoSwitch(
+                        value: false,
+                        onChanged: (value) {},
+                      ),
+                    ),
+                    16.verticalSpace,
+                    Text(
+                      "Time",
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: AppColors.offWhiteColor,
+                        fontVariations: [FontVariation.weight(600)],
+                      ),
+                    ),
+                    10.verticalSpace,
+                    Row(
+                      children: List.generate(
+                        _filterByTimeOptions.length,
+                        (index) => Card(
+                          color: _filterByTimeOptions[index].status
+                              ? AppColors.blueColor
+                              : AppColors.deepBlueColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.r),
+                            side: !_filterByTimeOptions[index].status
+                                ? BorderSide(color: Colors.white10, width: 1.5)
+                                : BorderSide.none,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15.w,
+                              vertical: 8.w,
+                            ),
+                            child: Text(
+                              _filterByTimeOptions[index].time,
+                              style: TextStyle(
+                                color: _filterByTimeOptions[index].status
+                                    ? Colors.white
+                                    : AppColors.lightGreyColor,
+                                fontSize: 15.sp,
+                                fontVariations: [FontVariation.weight(600)],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    40.verticalSpace,
+                    CustomAppButton(
+                      buttonText: "Apply",
+                      fontSize: 15.sp,
+                      minimumSize: Size(double.infinity, 50.h),
+                      onTap: () {},
+                    ),
+                    8.verticalSpace,
+                    _clearSortOrFilterButton("Clear Filters", () {}),
                   ],
                 ),
-              ),],
+              ),
+            ],
           ),
         ),
       ),
@@ -419,6 +495,25 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  TextButton _clearSortOrFilterButton(String buttonText, VoidCallback onTap) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+        overlayColor: AppColors.inactiveColor,
+        minimumSize: Size(double.infinity, 48.h),
+      ),
+      child: Text(
+        buttonText,
+        style: TextStyle(
+          fontSize: 14.sp,
+          color: AppColors.lightGreyColor,
+          fontVariations: [FontVariation.weight(600)],
+        ),
+      ),
     );
   }
 }
