@@ -1,3 +1,4 @@
+import 'package:ai_personal_content_app/core/configs/objectbox_config.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
 import 'package:ai_personal_content_app/core/theme/app_fonts.dart';
 import 'package:ai_personal_content_app/core/utils/utils.dart';
@@ -10,7 +11,12 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+late final ObjectboxConfig objectBoxInstance;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  objectBoxInstance = await ObjectboxConfig.create();
   runApp(const MyApp());
 }
 
@@ -49,7 +55,9 @@ class MyApp extends StatelessWidget {
               shadowColor: AppColors.backgroundColor,
             ),
             iconButtonTheme: IconButtonThemeData(
-              style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              style: IconButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ),
           routerConfig: router,

@@ -16,7 +16,9 @@ async def generate_image_embeddings(image: UploadFile):
     inputs = [
         [img]
     ]
-    result = voyage_client.multimodal_embed(inputs, model=IMAGE_EMBEDDING_MODEL)
+    result = voyage_client.multimodal_embed(inputs, model=IMAGE_EMBEDDING_MODEL,
+                                            output_dimension=512,
+                                            input_type="document")
     return result
 
 
