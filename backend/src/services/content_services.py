@@ -23,19 +23,26 @@ async def generate_image_embeddings(image: UploadFile):
 
 
 def generate_text_embeddings(text: str):
-    text_inputs = [
-        {
-            "content": [
-                {"type": "text", "text": text},
+    count = 0
+    while True:
+        try:
+            text_inputs = [
+                {
+                    "content": [
+                        {"type": "text", "text": text},
+                    ]
+                },
             ]
-        },
-    ]
 
-    response = co.embed(
-        inputs=text_inputs,
-        model="embed-v4.0",
-        input_type="classification",
-        embedding_types=["float"],
-        output_dimension=1024
-    )
-    return response
+            response = co.embed(
+                inputs=text_inputs,
+                model="embed-v4.0",
+                input_type="classification",
+                embedding_types=["float"],
+                output_dimension=1024
+            )
+            return response
+        except cohere.errors.too_many_requests_error.TooManyRequestsError:
+            count += 1
+            print(f"[Cohere] TooManyRequestsError occurred; Count: {count}")
+            continue
