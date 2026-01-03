@@ -1,17 +1,28 @@
+from fastapi import APIRouter, Body, UploadFile, File
 from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, File, Body
-
+import uuid
+from src.schemas.content_operations_schemas import ImageEmbeddingSchema, TextEmbeddingSchema
 from src.services.content_services import generate_image_embeddings, generate_text_embeddings
 
 content_router = APIRouter(prefix="/content")
 
 
 @content_router.post("/embeddings/image")
-async def get_embeddings(image: Annotated[UploadFile, File()]):
-    return await generate_image_embeddings(image)
+async def get_image_embeddings(image: Annotated[UploadFile, File()], cid: str = Body(default=None)):
+    embeddings = await generate_image_embeddings(image)
+    return {
+        "id": uuid.uuid4().hex,
+        "cid": cid,
+        "embeddings": embeddings.embeddings,
+    }
 
 
 @content_router.post("/embeddings/text")
-async def get_text_embeddings(text: Annotated[str, Body(embed=True)]):
-    return generate_text_embeddings(text)
+async def get_text_embeddings(textData: TextEmbeddingSchema):
+    embeddings = generate_text_embeddings(textData.text)
+    return {
+        "id": uuid.uuid4().hex,
+        "cid": textData.cid,
+        "embeddings": embeddings.embeddings.float_,
+    }

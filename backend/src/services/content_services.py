@@ -18,7 +18,7 @@ async def generate_image_embeddings(image: UploadFile):
     ]
     result = voyage_client.multimodal_embed(inputs, model=IMAGE_EMBEDDING_MODEL,
                                             output_dimension=512,
-                                            input_type="document")
+                                            input_type="document", )
     return result
 
 
@@ -39,7 +39,7 @@ def generate_text_embeddings(text: str):
                 model="embed-v4.0",
                 input_type="classification",
                 embedding_types=["float"],
-                output_dimension=1024
+                output_dimension=512
             )
             return response
         except cohere.errors.too_many_requests_error.TooManyRequestsError:

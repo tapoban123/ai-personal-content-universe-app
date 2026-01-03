@@ -1,16 +1,19 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:ai_personal_content_app/core/api/api_client.dart';
 import 'package:ai_personal_content_app/core/api/api_routes.dart';
 import 'package:ai_personal_content_app/core/api/exceptions.dart';
+import 'package:ai_personal_content_app/core/api/logger.dart';
+import 'package:ai_personal_content_app/features/home/models/content_embedding_response_model.dart';
 import 'package:dio/dio.dart';
+import 'package:fpdart/fpdart.dart';
 
 class EmbeddingGenerationService {
   final Dio _dio = ApiClient().dio;
 
-  Future<void> generateImageEmbeddings({required File image}) async {
+  Future<Either<ApiException, ContentEmbeddingResponseModel>>
+  generateImageEmbeddings({String? cid, required File image}) async {
     try {
       final formData = FormData.fromMap({
         "image": await MultipartFile.fromFile(image.path),
@@ -21,16 +24,40 @@ class EmbeddingGenerationService {
       );
 
       if (response.statusCode == 200) {
-        log(response.data);
+        return Right(
+          ContentEmbeddingResponseModel.fromJson(jsonDecode(response.data)),
+        );
+      }
+      return Left(
+        CustomApiException(
+          message: response.statusMessage ?? "An error has occurred.",
+          statusCode: response.statusCode,
+        ),
+      );
+    } on DioException catch (e) {
+      switch (e.type) {
+        case DioExceptionType.sendTimeout:
+          return Left(SendTimeoutException());
+        case DioExceptionType.receiveTimeout:
+          return Left(ReceiveTimeoutException());
+        default:
+          return Left(
+            CustomApiException(
+              message: e.message.toString(),
+              statusCode: e.response?.statusCode,
+            ),
+          );
       }
     } on SocketException catch (e) {
-      throw NoInternetConnectionException();
-    } catch (e) {
-      log("$e");
+      return Left(NoInternetConnectionException());
+    } catch (e, stk) {
+      logNetworkError("GENERATE IMAGE EMBEDDINGS ERROR", e.toString(), stk);
+      return Left(CustomApiException(message: e.toString()));
     }
   }
 
-  Future<void> generateTextEmbeddings({required String text}) async {
+  Future<Either<ApiException, ContentEmbeddingResponseModel>>
+  generateTextEmbeddings({String? cid, required String text}) async {
     try {
       final response = await _dio.post(
         ApiRoutes.generateTextEmbeddings,
@@ -38,10 +65,35 @@ class EmbeddingGenerationService {
       );
 
       if (response.statusCode == 200) {
-        log(response.data);
+        return Right(
+          ContentEmbeddingResponseModel.fromJson(jsonDecode(response.data)),
+        );
       }
-    } catch (e) {
-      log("$e");
+      return Left(
+        CustomApiException(
+          message: response.statusMessage ?? "An error has occurred.",
+          statusCode: response.statusCode,
+        ),
+      );
+    } on DioException catch (e) {
+      switch (e.type) {
+        case DioExceptionType.sendTimeout:
+          return Left(SendTimeoutException());
+        case DioExceptionType.receiveTimeout:
+          return Left(ReceiveTimeoutException());
+        default:
+          return Left(
+            CustomApiException(
+              message: e.message.toString(),
+              statusCode: e.response?.statusCode,
+            ),
+          );
+      }
+    } on SocketException catch (e) {
+      return Left(NoInternetConnectionException());
+    } catch (e, stk) {
+      logNetworkError("GENERATE TEXT EMBEDDINGS ERROR", e.toString(), stk);
+      return Left(CustomApiException(message: e.toString()));
     }
   }
 }
