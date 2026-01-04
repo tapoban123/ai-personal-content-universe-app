@@ -2,7 +2,9 @@ import 'package:ai_personal_content_app/core/configs/objectbox_config.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
 import 'package:ai_personal_content_app/core/theme/app_fonts.dart';
 import 'package:ai_personal_content_app/core/utils/utils.dart';
+import 'package:ai_personal_content_app/features/home/controllers/new_contents_bloc/new_contents_bloc.dart';
 import 'package:ai_personal_content_app/features/home/controllers/new_contents_bloc/new_contents_cubit.dart';
+import 'package:ai_personal_content_app/get_it.dart';
 import 'package:ai_personal_content_app/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +17,7 @@ late final ObjectboxConfig objectBoxInstance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  init();
 
   objectBoxInstance = await ObjectboxConfig.create();
   runApp(const MyApp());
@@ -31,7 +34,10 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       child: MultiBlocProvider(
-        providers: [BlocProvider(create: (context) => NewContentsCubit())],
+        providers: [
+          BlocProvider(create: (context) => NewContentsCubit()),
+          BlocProvider(create: (context) => getIt<NewContentsBloc>()),
+        ],
         child: MaterialApp.router(
           title: "AI Personal Content Universe",
           debugShowCheckedModeBanner: false,
