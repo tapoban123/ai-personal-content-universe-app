@@ -10,7 +10,7 @@ abstract class ContentEmbeddingResponseModel
   factory ContentEmbeddingResponseModel({
     required String id,
     required String cid, // content Id
-    required List<List<double>> embeddings,
+    required List<double> embeddings,
   }) = _ContentEmbeddingResponseModel;
 
   factory ContentEmbeddingResponseModel.fromJson(Map<String, dynamic> json) =>

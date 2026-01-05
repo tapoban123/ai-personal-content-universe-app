@@ -15,7 +15,7 @@ async def get_image_embeddings(image: Annotated[UploadFile, File()], cid: str = 
     return {
         "id": uuid.uuid4().hex,
         "cid": cid,
-        "embeddings": embeddings.embeddings,
+        "embeddings": embeddings.embeddings[0],
     }
 
 

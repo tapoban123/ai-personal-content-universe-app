@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$ContentEmbeddingResponseModel {
 
  String get id; String get cid;// content Id
- List<List<double>> get embeddings;
+ List<double> get embeddings;
 /// Create a copy of ContentEmbeddingResponseModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $ContentEmbeddingResponseModelCopyWith<$Res>  {
   factory $ContentEmbeddingResponseModelCopyWith(ContentEmbeddingResponseModel value, $Res Function(ContentEmbeddingResponseModel) _then) = _$ContentEmbeddingResponseModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String cid, List<List<double>> embeddings
+ String id, String cid, List<double> embeddings
 });
 
 
@@ -71,7 +71,7 @@ class _$ContentEmbeddingResponseModelCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,cid: null == cid ? _self.cid : cid // ignore: cast_nullable_to_non_nullable
 as String,embeddings: null == embeddings ? _self.embeddings : embeddings // ignore: cast_nullable_to_non_nullable
-as List<List<double>>,
+as List<double>,
   ));
 }
 
@@ -156,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String cid,  List<List<double>> embeddings)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String cid,  List<double> embeddings)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ContentEmbeddingResponseModel() when $default != null:
 return $default(_that.id,_that.cid,_that.embeddings);case _:
@@ -177,7 +177,7 @@ return $default(_that.id,_that.cid,_that.embeddings);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String cid,  List<List<double>> embeddings)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String cid,  List<double> embeddings)  $default,) {final _that = this;
 switch (_that) {
 case _ContentEmbeddingResponseModel():
 return $default(_that.id,_that.cid,_that.embeddings);case _:
@@ -197,7 +197,7 @@ return $default(_that.id,_that.cid,_that.embeddings);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String cid,  List<List<double>> embeddings)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String cid,  List<double> embeddings)?  $default,) {final _that = this;
 switch (_that) {
 case _ContentEmbeddingResponseModel() when $default != null:
 return $default(_that.id,_that.cid,_that.embeddings);case _:
@@ -212,15 +212,15 @@ return $default(_that.id,_that.cid,_that.embeddings);case _:
 @JsonSerializable()
 
 class _ContentEmbeddingResponseModel implements ContentEmbeddingResponseModel {
-   _ContentEmbeddingResponseModel({required this.id, required this.cid, required final  List<List<double>> embeddings}): _embeddings = embeddings;
+   _ContentEmbeddingResponseModel({required this.id, required this.cid, required final  List<double> embeddings}): _embeddings = embeddings;
   factory _ContentEmbeddingResponseModel.fromJson(Map<String, dynamic> json) => _$ContentEmbeddingResponseModelFromJson(json);
 
 @override final  String id;
 @override final  String cid;
 // content Id
- final  List<List<double>> _embeddings;
+ final  List<double> _embeddings;
 // content Id
-@override List<List<double>> get embeddings {
+@override List<double> get embeddings {
   if (_embeddings is EqualUnmodifiableListView) return _embeddings;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_embeddings);
@@ -260,7 +260,7 @@ abstract mixin class _$ContentEmbeddingResponseModelCopyWith<$Res> implements $C
   factory _$ContentEmbeddingResponseModelCopyWith(_ContentEmbeddingResponseModel value, $Res Function(_ContentEmbeddingResponseModel) _then) = __$ContentEmbeddingResponseModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String cid, List<List<double>> embeddings
+ String id, String cid, List<double> embeddings
 });
 
 
@@ -282,7 +282,7 @@ class __$ContentEmbeddingResponseModelCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,cid: null == cid ? _self.cid : cid // ignore: cast_nullable_to_non_nullable
 as String,embeddings: null == embeddings ? _self._embeddings : embeddings // ignore: cast_nullable_to_non_nullable
-as List<List<double>>,
+as List<double>,
   ));
 }
 

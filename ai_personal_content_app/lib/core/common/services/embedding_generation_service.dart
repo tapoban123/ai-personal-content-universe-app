@@ -72,12 +72,11 @@ class EmbeddingGenerationService {
     try {
       final response = await _dio.post(
         ApiRoutes.generateTextEmbeddings,
-        data: jsonEncode({"text": text}),
+        data: jsonEncode({"cid":cid, "text": text}),
         onReceiveProgress: onReceiveProgress,
       );
 
       if (response.statusCode == 200) {
-        log(response.data.toString());
         return Right(
           ContentEmbeddingResponseModel.fromJson(response.data),
         );

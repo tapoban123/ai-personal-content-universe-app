@@ -6,6 +6,7 @@ import 'package:ai_personal_content_app/core/common/constants.dart';
 import 'package:ai_personal_content_app/core/common/services/embedding_generation_service.dart';
 import 'package:ai_personal_content_app/features/home/controllers/new_contents_bloc/new_contents_events.dart';
 import 'package:ai_personal_content_app/features/home/controllers/new_contents_bloc/new_contents_states.dart';
+import 'package:ai_personal_content_app/features/home/models/content_embedding_response_model.dart';
 import 'package:ai_personal_content_app/features/home/models/preview_file_model.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:file_picker/file_picker.dart';
@@ -92,29 +93,43 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
     GenerateEmbeddingsForAllEvent event,
     Emitter emit,
   ) async {
-    for (final content in _newData) {
-      final fileData = await content.file.readAsString();
-      if (content.fileType == ContentFileType.NOTE) {
-        final doc = Document.fromJson(jsonDecode(fileData));
-        final String plainText = doc.toPlainText();
-        final embeddings = await _embeddingGenerationService
-            .generateTextEmbeddings(
-              text: plainText,
-              onReceiveProgress: (count, total) {
-                emit(
-                  NewContentsStates.loading(
-                    content: content.copyWith(loadingProgress: count / total),
-                  ),
-                );
-              },
-            );
+    final embeddingFutures = _newData.map(
+      (content) => _generateEachContentEmbedding(content: content, emit: emit),
+    );
 
-        embeddings.fold(
-          (l) => emit(NewContentsStates.error(message: l.message)),
-          (r) => log(r.toString()),
-        );
-      }
+    final List<ContentEmbeddingResponseModel?> embeddings = await Future.wait(embeddingFutures);
+  }
+
+  Future<ContentEmbeddingResponseModel?> _generateEachContentEmbedding({
+    required PreviewFileModel content,
+    required Emitter emit,
+  }) async {
+    final fileData = await content.file.readAsString();
+    ContentEmbeddingResponseModel? embeddings;
+
+    if (content.fileType == ContentFileType.NOTE) {
+      final doc = Document.fromJson(jsonDecode(fileData));
+      final String plainText = doc.toPlainText();
+      final embeddingsResp = await _embeddingGenerationService
+          .generateTextEmbeddings(
+            cid: content.cid,
+            text: plainText,
+            onReceiveProgress: (count, total) {
+              emit(
+                NewContentsStates.loading(
+                  content: content.copyWith(loadingProgress: count / total),
+                ),
+              );
+            },
+          );
+
+      embeddingsResp.fold(
+        (l) => emit(NewContentsStates.error(message: l.message)),
+        (r) => embeddings = r,
+      );
+      return embeddings;
     }
+    return null;
   }
 
   void _clear(ClearAllAddedContentsEvent event, Emitter emit) {
