@@ -314,7 +314,6 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _headerRow("Filter Options", "FILTER"),
-              // 12.verticalSpace,
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.w),
                 child: Column(
