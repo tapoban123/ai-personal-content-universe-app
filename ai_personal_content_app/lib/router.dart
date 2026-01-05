@@ -31,7 +31,10 @@ final router = GoRouter(
     GoRoute(path: RouteNames.home, builder: (context, state) => HomeScreen()),
     GoRoute(
       path: RouteNames.viewItemOptions,
-      builder: (context, state) => ViewItemScreen(),
+      builder: (context, state) {
+        final content = state.extra as Map<String, dynamic>?;
+        return ViewItemScreen(content: content?["content"]);
+      },
     ),
     GoRoute(
       path: RouteNames.userProfile,

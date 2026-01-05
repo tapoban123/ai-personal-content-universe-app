@@ -3,13 +3,16 @@ import 'package:ai_personal_content_app/core/common/widgets/custom_appbar.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
 import 'package:ai_personal_content_app/core/theme/app_svgs.dart';
 import 'package:ai_personal_content_app/core/utils/utils.dart';
+import 'package:ai_personal_content_app/features/search/entities/contents_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class ViewItemScreen extends StatefulWidget {
-  const ViewItemScreen({super.key});
+  final ContentsEntity content;
+
+  const ViewItemScreen({super.key, required this.content});
 
   @override
   State<ViewItemScreen> createState() => _ViewItemScreenState();
@@ -53,6 +56,8 @@ class _ViewItemScreenState extends State<ViewItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final content = widget.content;
+
     final optionsData = [
       (
         icon: Icons.chat_outlined,
@@ -84,7 +89,7 @@ class _ViewItemScreenState extends State<ViewItemScreen> {
           },
           child: Icon(Icons.arrow_back_ios, color: Colors.white),
         ),
-        title: "Project Plan.pdf",
+        title: content.contentName,
         actions: [
           IconButton(
             onPressed: () {},
@@ -128,19 +133,27 @@ class _ViewItemScreenState extends State<ViewItemScreen> {
                         flex: 1,
                         child: _itemDetailWidget(
                           label: "Created",
-                          value: DateFormat("MMM d, y").format(DateTime.now()),
+                          value: DateFormat(
+                            "MMM d, y",
+                          ).format(content.createdAt),
                         ),
                       ),
                       Flexible(
                         flex: 1,
-                        child: _itemDetailWidget(label: "Type", value: "PDF"),
+                        child: _itemDetailWidget(
+                          label: "Type",
+                          value: content.extension.toUpperCase(),
+                        ),
                       ),
                     ],
                   ),
                   16.verticalSpace,
                   Divider(color: AppColors.borderColor),
                   16.verticalSpace,
-                  _itemDetailWidget(label: "Size", value: "2.1 MB"),
+                  _itemDetailWidget(
+                    label: "Size",
+                    value: "${bytesToMegabytes(content.contentSizeInBytes)} MB",
+                  ),
                   40.verticalSpace,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -390,7 +403,7 @@ class _ChatBottomSheetContentState extends State<_ChatBottomSheetContent> {
                 textAlign: TextAlign.center,
               ),
             ),
-            Divider(color: AppColors.borderColor,),
+            Divider(color: AppColors.borderColor),
             Expanded(
               child: ListView.separated(
                 itemCount: 50,

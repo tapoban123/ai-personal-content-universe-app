@@ -14,30 +14,61 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ContentsManagerEvents {
 
-
+ FilterAndSortOptions? get filterAndSortOptions;
+/// Create a copy of ContentsManagerEvents
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ContentsManagerEventsCopyWith<ContentsManagerEvents> get copyWith => _$ContentsManagerEventsCopyWithImpl<ContentsManagerEvents>(this as ContentsManagerEvents, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentsManagerEvents);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentsManagerEvents&&(identical(other.filterAndSortOptions, filterAndSortOptions) || other.filterAndSortOptions == filterAndSortOptions));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,filterAndSortOptions);
 
 @override
 String toString() {
-  return 'ContentsManagerEvents()';
+  return 'ContentsManagerEvents(filterAndSortOptions: $filterAndSortOptions)';
 }
 
 
 }
 
 /// @nodoc
-class $ContentsManagerEventsCopyWith<$Res>  {
-$ContentsManagerEventsCopyWith(ContentsManagerEvents _, $Res Function(ContentsManagerEvents) __);
+abstract mixin class $ContentsManagerEventsCopyWith<$Res>  {
+  factory $ContentsManagerEventsCopyWith(ContentsManagerEvents value, $Res Function(ContentsManagerEvents) _then) = _$ContentsManagerEventsCopyWithImpl;
+@useResult
+$Res call({
+ FilterAndSortOptions? filterAndSortOptions
+});
+
+
+
+
+}
+/// @nodoc
+class _$ContentsManagerEventsCopyWithImpl<$Res>
+    implements $ContentsManagerEventsCopyWith<$Res> {
+  _$ContentsManagerEventsCopyWithImpl(this._self, this._then);
+
+  final ContentsManagerEvents _self;
+  final $Res Function(ContentsManagerEvents) _then;
+
+/// Create a copy of ContentsManagerEvents
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? filterAndSortOptions = freezed,}) {
+  return _then(_self.copyWith(
+filterAndSortOptions: freezed == filterAndSortOptions ? _self.filterAndSortOptions : filterAndSortOptions // ignore: cast_nullable_to_non_nullable
+as FilterAndSortOptions?,
+  ));
+}
+
 }
 
 
@@ -119,10 +150,10 @@ return fetchAllContents(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  fetchAllContents,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( FilterAndSortOptions? filterAndSortOptions)?  fetchAllContents,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case FetchAllContents() when fetchAllContents != null:
-return fetchAllContents();case _:
+return fetchAllContents(_that.filterAndSortOptions);case _:
   return orElse();
 
 }
@@ -140,10 +171,10 @@ return fetchAllContents();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  fetchAllContents,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( FilterAndSortOptions? filterAndSortOptions)  fetchAllContents,}) {final _that = this;
 switch (_that) {
 case FetchAllContents():
-return fetchAllContents();case _:
+return fetchAllContents(_that.filterAndSortOptions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -160,10 +191,10 @@ return fetchAllContents();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  fetchAllContents,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( FilterAndSortOptions? filterAndSortOptions)?  fetchAllContents,}) {final _that = this;
 switch (_that) {
 case FetchAllContents() when fetchAllContents != null:
-return fetchAllContents();case _:
+return fetchAllContents(_that.filterAndSortOptions);case _:
   return null;
 
 }
@@ -175,32 +206,66 @@ return fetchAllContents();case _:
 
 
 class FetchAllContents implements ContentsManagerEvents {
-   FetchAllContents();
+   FetchAllContents({this.filterAndSortOptions});
   
 
+@override final  FilterAndSortOptions? filterAndSortOptions;
 
-
+/// Create a copy of ContentsManagerEvents
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FetchAllContentsCopyWith<FetchAllContents> get copyWith => _$FetchAllContentsCopyWithImpl<FetchAllContents>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FetchAllContents);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FetchAllContents&&(identical(other.filterAndSortOptions, filterAndSortOptions) || other.filterAndSortOptions == filterAndSortOptions));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,filterAndSortOptions);
 
 @override
 String toString() {
-  return 'ContentsManagerEvents.fetchAllContents()';
+  return 'ContentsManagerEvents.fetchAllContents(filterAndSortOptions: $filterAndSortOptions)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $FetchAllContentsCopyWith<$Res> implements $ContentsManagerEventsCopyWith<$Res> {
+  factory $FetchAllContentsCopyWith(FetchAllContents value, $Res Function(FetchAllContents) _then) = _$FetchAllContentsCopyWithImpl;
+@override @useResult
+$Res call({
+ FilterAndSortOptions? filterAndSortOptions
+});
 
 
+
+
+}
+/// @nodoc
+class _$FetchAllContentsCopyWithImpl<$Res>
+    implements $FetchAllContentsCopyWith<$Res> {
+  _$FetchAllContentsCopyWithImpl(this._self, this._then);
+
+  final FetchAllContents _self;
+  final $Res Function(FetchAllContents) _then;
+
+/// Create a copy of ContentsManagerEvents
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? filterAndSortOptions = freezed,}) {
+  return _then(FetchAllContents(
+filterAndSortOptions: freezed == filterAndSortOptions ? _self.filterAndSortOptions : filterAndSortOptions // ignore: cast_nullable_to_non_nullable
+as FilterAndSortOptions?,
+  ));
+}
+
+
+}
 
 // dart format on

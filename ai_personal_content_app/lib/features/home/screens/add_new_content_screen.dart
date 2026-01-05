@@ -85,7 +85,19 @@ class AddNewContentScreen extends StatelessWidget {
                     newContents: (contents) => true,
                   ),
                   listener: (context, state) {
-
+                    state.maybeWhen(
+                      orElse: () => null,
+                      error: (message) => showAppDialog(
+                        context,
+                        title: "Error",
+                        message: message,
+                        dialogType: DialogType.ERROR,
+                        buttonText: "Retry",
+                      ),
+                      success: () {
+                        _clearContentsAndPopScreen(context);
+                      },
+                    );
                   },
                   builder: (context, state) {
                     final List<PreviewFileModel> contents = state.maybeWhen(
@@ -104,10 +116,7 @@ class AddNewContentScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final file = contents[index];
 
-                            return _NewContentWidget(
-                              file: file,
-                              index: index,
-                            );
+                            return _NewContentWidget(file: file, index: index);
                           },
                         ),
                         Positioned(

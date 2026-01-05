@@ -12,8 +12,8 @@ class EmbeddingsLocalStorageService {
     _embeddingsBox.putMany(embeddings);
   }
 
-  void fetchAllEmbeddings() {
-    _embeddingsBox.getAll();
+  List<ContentEmbeddingsEntity> fetchAllEmbeddings() {
+    return _embeddingsBox.getAll();
   }
 
   List<NearestEmbeddingContentsModel> fetchNearestEmbeddings(

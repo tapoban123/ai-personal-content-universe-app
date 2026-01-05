@@ -2,9 +2,14 @@ import 'package:ai_personal_content_app/core/common/constants.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_appbar.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_button.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
+import 'package:ai_personal_content_app/features/search/controllers/contents_manager_bloc/contents_manager_bloc.dart';
+import 'package:ai_personal_content_app/features/search/controllers/contents_manager_bloc/contents_manager_events.dart';
+import 'package:ai_personal_content_app/features/search/controllers/contents_manager_bloc/contents_manager_states.dart';
+import 'package:ai_personal_content_app/features/search/entities/contents_entity.dart';
 import 'package:ai_personal_content_app/router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
@@ -47,6 +52,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
   void initState() {
     _scaffoldKey = GlobalKey();
     _layoutTypeNotifier = ValueNotifier(_LayoutType.GRID);
+    context.read<ContentsManagerBloc>().add(FetchAllContents());
     super.initState();
   }
 
@@ -146,10 +152,35 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
               valueListenable: _layoutTypeNotifier,
               builder: (context, layoutType, child) {
                 return Expanded(
-                  child: IndexedStack(
-                    index: layoutType.index,
-                    children: [_GridItemsLayout(), _ListItemsLayout()],
-                  ),
+                  child:
+                      BlocBuilder<ContentsManagerBloc, ContentsManagerStates>(
+                        builder: (context, state) {
+                          final List<ContentsEntity> contents = state.maybeWhen(
+                            orElse: () => [],
+                            allContents: (contents) => contents,
+                          );
+
+                          if (contents.isEmpty) {
+                            return Center(
+                              child: Text(
+                                "You do not have any contents to display.",
+                                style: TextStyle(
+                                  fontVariations: [FontVariation.weight(600)],
+                                  fontSize: 16.sp,
+                                ),
+                              ),
+                            );
+                          }
+
+                          return IndexedStack(
+                            index: layoutType.index,
+                            children: [
+                              _GridItemsLayout(contents: contents),
+                              _ListItemsLayout(contents: contents),
+                            ],
+                          );
+                        },
+                      ),
                 );
               },
             ),
@@ -518,7 +549,9 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
 }
 
 class _GridItemsLayout extends StatelessWidget {
-  const _GridItemsLayout({super.key});
+  final List<ContentsEntity> contents;
+
+  const _GridItemsLayout({super.key, required this.contents});
 
   @override
   Widget build(BuildContext context) {
@@ -529,97 +562,118 @@ class _GridItemsLayout extends StatelessWidget {
         mainAxisSpacing: 14.h,
         childAspectRatio: 0.714,
       ),
-      itemCount: 10,
-      itemBuilder: (context, index) => GestureDetector(
-        onTap: () {
-          context.push(RouteNames.viewItemOptions);
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 170.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                image: DecorationImage(
-                  image: NetworkImage(RANDOM_IMAGE_URL),
-                  fit: BoxFit.cover,
+      itemCount: contents.length,
+      itemBuilder: (context, index) {
+        final content = contents[index];
+
+        return GestureDetector(
+          onTap: () {
+            context.push(
+              RouteNames.viewItemOptions,
+              extra: {"content": content},
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 170.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  image: DecorationImage(
+                    image: NetworkImage(RANDOM_IMAGE_URL),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            12.verticalSpace,
-            Text(
-              "Quantum Computing IntroIntroIntroIntroIntroIntro.pdf",
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontVariations: [FontVariation.weight(600)],
+              12.verticalSpace,
+              Text(
+                content.contentName,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontVariations: [FontVariation.weight(600)],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              "PDF",
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: AppColors.lightGreyColor,
-                fontVariations: [FontVariation.weight(400)],
+              Text(
+                content.extension.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: AppColors.lightGreyColor,
+                  fontVariations: [FontVariation.weight(400)],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
 
 class _ListItemsLayout extends StatelessWidget {
-  const _ListItemsLayout({super.key});
+  final List<ContentsEntity> contents;
+
+  const _ListItemsLayout({super.key, required this.contents});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 20,
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          context.push(RouteNames.viewItemOptions);
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8.r),
-          child: Image.network(
-            RANDOM_IMAGE_URL,
-            fit: BoxFit.cover,
-            height: 48.w,
-            width: 48.w,
+      itemCount: contents.length,
+      itemBuilder: (context, index) {
+        final content = contents[index];
+
+        return ListTile(
+          onTap: () {
+            context.push(
+              RouteNames.viewItemOptions,
+              extra: {"content": content},
+            );
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.r),
           ),
-        ),
-        title: Text(
-          "Quantum Computing IntroIntroIntro.pdf",
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.white,
-            fontVariations: [FontVariation.weight(600)],
-            overflow: TextOverflow.ellipsis,
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: Image.network(
+              RANDOM_IMAGE_URL,
+              fit: BoxFit.cover,
+              height: 48.w,
+              width: 48.w,
+            ),
           ),
-        ),
-        subtitle: Text(
-          "PDF \u2022 2 hours ago",
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: AppColors.lightGreyColor,
-            fontVariations: [FontVariation.weight(500)],
+          title: Text(
+            content.contentName,
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.white,
+              fontVariations: [FontVariation.weight(600)],
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        trailing: IconButton(
-          onPressed: () {},
-          style: IconButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          subtitle: Text(
+            "${content.extension.toUpperCase()} \u2022 2 hours ago",
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: AppColors.lightGreyColor,
+              fontVariations: [FontVariation.weight(500)],
+            ),
           ),
-          icon: Icon(Icons.more_vert_outlined, color: AppColors.lightGreyColor),
-        ),
-      ),
+          trailing: IconButton(
+            onPressed: () {},
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            icon: Icon(
+              Icons.more_vert_outlined,
+              color: AppColors.lightGreyColor,
+            ),
+          ),
+        );
+      },
     );
   }
 }
