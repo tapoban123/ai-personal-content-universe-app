@@ -36,7 +36,7 @@ async def get_text_embeddings(textData: TextEmbeddingSchema):
 async def get_text_embeddings(textData: TextEmbeddingSchema):
     embeddings = generate_text_embeddings_dev(textData.text)
     if textData.cid is None:
-        return {"embeddings": embeddings.embeddings[0]}
+        return {"embeddings": embeddings.embeddings[0].values}
 
     return {
         "id": uuid.uuid4().hex,

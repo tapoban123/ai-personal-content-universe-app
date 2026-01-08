@@ -1,9 +1,15 @@
+import 'dart:developer';
+
 import 'package:ai_personal_content_app/core/common/constants.dart';
 import 'package:ai_personal_content_app/core/common/widgets/custom_appbar.dart';
 import 'package:ai_personal_content_app/core/theme/app_colors.dart';
 import 'package:ai_personal_content_app/core/utils/utils.dart';
+import 'package:ai_personal_content_app/features/search/controllers/search_contents_bloc/search_contents_bloc.dart';
+import 'package:ai_personal_content_app/features/search/controllers/search_contents_bloc/search_contents_events.dart';
+import 'package:ai_personal_content_app/features/search/controllers/search_contents_bloc/search_contents_states.dart';
 import 'package:ai_personal_content_app/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -27,6 +33,12 @@ class _SearchContentsScreenState extends State<SearchContentsScreen> {
   final List _documents = List.generate(8, (index) => index);
   final List _images = List.generate(7, (index) => index);
   final List _notes = List.generate(8, (index) => index);
+
+  @override
+  void initState() {
+    _focusNode.requestFocus();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -118,13 +130,23 @@ class _SearchContentsScreenState extends State<SearchContentsScreen> {
                   onTapOutside: (event) {
                     _focusNode.unfocus();
                   },
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      context.read<SearchContentsBloc>().add(
+                        GenerateQueryEmbeddings(
+                          query: _searchController.text.trim(),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   child: SizedBox(
                     height: 30.h,
                     child: ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(width: 8.w,),
+                      separatorBuilder: (context, index) =>
+                          SizedBox(width: 8.w),
                       scrollDirection: Axis.horizontal,
                       itemCount: contentFilters.length,
                       itemBuilder: (context, index) => ValueListenableBuilder(
@@ -184,109 +206,141 @@ class _SearchContentsScreenState extends State<SearchContentsScreen> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: ValueListenableBuilder(
-                valueListenable: _selectedFilter,
-                builder: (context, selectedFilter, child) {
-                  return CustomScrollView(
-                    slivers: [
-                      if ([
-                        _SearchContentFilters.IMAGES,
-                        _SearchContentFilters.ALL,
-                      ].contains(selectedFilter))
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 14.w),
-                            child: _sectionHeadingText("IMAGES (12)"),
-                          ),
-                        ),
-                      if (_images.isNotEmpty &&
-                          selectedFilter == _SearchContentFilters.ALL)
-                        SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 120.h,
-                            child: ListView.separated(
-                              separatorBuilder: (context, index) =>
-                                  SizedBox(width: 12.w),
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _images.length,
-                              itemBuilder: (context, index) =>
-                                  _ImageCardWidget(),
-                            ),
-                          ),
-                        ),
-                      if (_images.isNotEmpty &&
-                          selectedFilter == _SearchContentFilters.IMAGES)
-                        SliverGrid(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1,
-                                mainAxisSpacing: 10.w,
-                                crossAxisSpacing: 12.h,
+              child: BlocConsumer<SearchContentsBloc, SearchContentsStates>(
+                listener: (context, state) {
+                  state.maybeWhen(
+                    orElse: () => null,
+                    error: (message, statusCode) => showAppDialog(
+                      context,
+                      title: (statusCode ?? "Error").toString(),
+                      message: message,
+                      dialogType: DialogType.ERROR,
+                    ),
+                  );
+                },
+                builder: (context, state) {
+                  return state.maybeWhen(
+                    orElse: () => SizedBox.shrink(),
+                    loading: () => Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.offWhiteColor,
+                      ),
+                    ),
+                    embeddingsGenerated: (contents) => ValueListenableBuilder(
+                      valueListenable: _selectedFilter,
+                      builder: (context, selectedFilter, child) {
+                        // log(contents.map((e) => e.content.contentName,).toList().toString());
+                        // log(contents.map((e) => e.score,).toList().toString());
+
+                        return CustomScrollView(
+                          slivers: [
+                            if ([
+                              _SearchContentFilters.IMAGES,
+                              _SearchContentFilters.ALL,
+                            ].contains(selectedFilter))
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: EdgeInsets.only(bottom: 14.w),
+                                  child: _sectionHeadingText("IMAGES (12)"),
+                                ),
                               ),
-                          delegate: SliverChildBuilderDelegate(
-                            childCount: _images.length,
-                            (context, index) =>
-                                _ImageCardWidget(isGridLayout: true),
-                          ),
-                        ),
-                      if ([
-                        _SearchContentFilters.DOCUMENTS,
-                        _SearchContentFilters.ALL,
-                      ].contains(selectedFilter))
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: selectedFilter == _SearchContentFilters.ALL
-                                  ? 30.h
-                                  : 0,
-                              bottom: 12.h,
-                            ),
-                            child: _sectionHeadingText("DOCUMENTS (8)"),
-                          ),
-                        ),
-                      if (_documents.isNotEmpty &&
-                          [
-                            _SearchContentFilters.DOCUMENTS,
-                            _SearchContentFilters.ALL,
-                          ].contains(selectedFilter))
-                        SliverList.separated(
-                          separatorBuilder: (context, index) =>
-                              SizedBox(height: 10.h),
-                          itemCount: _documents.length,
-                          itemBuilder: (context, index) => _DocumentCardWidget(
-                            fileType: ContentFileType.PDF,
-                          ),
-                        ),
-                      if ([
-                        _SearchContentFilters.NOTES,
-                        _SearchContentFilters.ALL,
-                      ].contains(selectedFilter))
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: selectedFilter == _SearchContentFilters.ALL
-                                  ? 30.h
-                                  : 0,
-                              bottom: 12.h,
-                            ),
-                            child: _sectionHeadingText("NOTES (5)"),
-                          ),
-                        ),
-                      if (_notes.isNotEmpty &&
-                          [
-                            _SearchContentFilters.NOTES,
-                            _SearchContentFilters.ALL,
-                          ].contains(selectedFilter))
-                        SliverList.separated(
-                          separatorBuilder: (context, index) =>
-                              SizedBox(height: 10.h),
-                          itemCount: _notes.length,
-                          itemBuilder: (context, index) => _DocumentCardWidget(
-                            fileType: ContentFileType.NOTE,
-                          ),
-                        ),
-                    ],
+                            if (_images.isNotEmpty &&
+                                selectedFilter == _SearchContentFilters.ALL)
+                              SliverToBoxAdapter(
+                                child: SizedBox(
+                                  height: 120.h,
+                                  child: ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        SizedBox(width: 12.w),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: _images.length,
+                                    itemBuilder: (context, index) =>
+                                        _ImageCardWidget(),
+                                  ),
+                                ),
+                              ),
+                            if (_images.isNotEmpty &&
+                                selectedFilter == _SearchContentFilters.IMAGES)
+                              SliverGrid(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      childAspectRatio: 1,
+                                      mainAxisSpacing: 10.w,
+                                      crossAxisSpacing: 12.h,
+                                    ),
+                                delegate: SliverChildBuilderDelegate(
+                                  childCount: _images.length,
+                                  (context, index) =>
+                                      _ImageCardWidget(isGridLayout: true),
+                                ),
+                              ),
+                            if ([
+                              _SearchContentFilters.DOCUMENTS,
+                              _SearchContentFilters.ALL,
+                            ].contains(selectedFilter))
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    top:
+                                        selectedFilter ==
+                                            _SearchContentFilters.ALL
+                                        ? 30.h
+                                        : 0,
+                                    bottom: 12.h,
+                                  ),
+                                  child: _sectionHeadingText("DOCUMENTS (8)"),
+                                ),
+                              ),
+                            if (_documents.isNotEmpty &&
+                                [
+                                  _SearchContentFilters.DOCUMENTS,
+                                  _SearchContentFilters.ALL,
+                                ].contains(selectedFilter))
+                              SliverList.separated(
+                                separatorBuilder: (context, index) =>
+                                    SizedBox(height: 10.h),
+                                itemCount: _documents.length,
+                                itemBuilder: (context, index) =>
+                                    _DocumentCardWidget(
+                                      fileType: ContentFileType.PDF,
+                                    ),
+                              ),
+                            if ([
+                              _SearchContentFilters.NOTES,
+                              _SearchContentFilters.ALL,
+                            ].contains(selectedFilter))
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    top:
+                                        selectedFilter ==
+                                            _SearchContentFilters.ALL
+                                        ? 30.h
+                                        : 0,
+                                    bottom: 12.h,
+                                  ),
+                                  child: _sectionHeadingText("NOTES (5)"),
+                                ),
+                              ),
+                            if (_notes.isNotEmpty &&
+                                [
+                                  _SearchContentFilters.NOTES,
+                                  _SearchContentFilters.ALL,
+                                ].contains(selectedFilter))
+                              SliverList.separated(
+                                separatorBuilder: (context, index) =>
+                                    SizedBox(height: 10.h),
+                                itemCount: _notes.length,
+                                itemBuilder: (context, index) =>
+                                    _DocumentCardWidget(
+                                      fileType: ContentFileType.NOTE,
+                                    ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   );
                 },
               ),

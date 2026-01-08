@@ -116,7 +116,7 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
       _embeddingsLocalStorageService.insertEmbeddings(
         embeddings.nonNulls.map((e) {
           return ContentEmbeddingsEntity(
-            contentId: e.cid,
+            contentId: e.cid!,
             contentVectors: e.embeddings,
           );
         }).toList(),
@@ -132,7 +132,7 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
           file.fileType,
         );
         final content = ContentsEntity(
-          contentId: embedding.cid,
+          contentId: embedding.cid!,
           path: path,
           contentName: file.name,
           contentSizeInBytes: file.sizeInBytes,
