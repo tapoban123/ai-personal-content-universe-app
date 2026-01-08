@@ -67,7 +67,7 @@ class EmbeddingGenerationService {
   generateTextEmbeddings({
     String? cid,
     required String text,
-    required Function(int count, int total) onReceiveProgress,
+    Function(int count, int total)? onReceiveProgress,
   }) async {
     try {
       final response = await _dio.post(

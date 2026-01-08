@@ -8,8 +8,8 @@ part 'content_embedding_response_model.freezed.dart';
 abstract class ContentEmbeddingResponseModel
     with _$ContentEmbeddingResponseModel {
   factory ContentEmbeddingResponseModel({
-    required String id,
-    required String cid, // content Id
+    String? id,
+    String? cid, // content Id
     required List<double> embeddings,
   }) = _ContentEmbeddingResponseModel;
 

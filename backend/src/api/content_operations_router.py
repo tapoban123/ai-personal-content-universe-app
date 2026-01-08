@@ -22,6 +22,9 @@ async def get_image_embeddings(image: Annotated[UploadFile, File()], cid: str = 
 @content_router.post("/embeddings/text")
 async def get_text_embeddings(textData: TextEmbeddingSchema):
     embeddings = generate_text_embeddings_prod(textData.text)
+    if textData.cid is None:
+        return {"embeddings": embeddings.embeddings[0]}
+
     return {
         "id": uuid.uuid4().hex,
         "cid": textData.cid,
@@ -32,6 +35,9 @@ async def get_text_embeddings(textData: TextEmbeddingSchema):
 @content_router.post("/dev/embeddings/text")
 async def get_text_embeddings(textData: TextEmbeddingSchema):
     embeddings = generate_text_embeddings_dev(textData.text)
+    if textData.cid is None:
+        return {"embeddings": embeddings.embeddings[0]}
+
     return {
         "id": uuid.uuid4().hex,
         "cid": textData.cid,

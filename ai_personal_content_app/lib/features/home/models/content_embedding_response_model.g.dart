@@ -9,8 +9,8 @@ part of 'content_embedding_response_model.dart';
 _ContentEmbeddingResponseModel _$ContentEmbeddingResponseModelFromJson(
   Map<String, dynamic> json,
 ) => _ContentEmbeddingResponseModel(
-  id: json['id'] as String,
-  cid: json['cid'] as String,
+  id: json['id'] as String?,
+  cid: json['cid'] as String?,
   embeddings: (json['embeddings'] as List<dynamic>)
       .map((e) => (e as num).toDouble())
       .toList(),
