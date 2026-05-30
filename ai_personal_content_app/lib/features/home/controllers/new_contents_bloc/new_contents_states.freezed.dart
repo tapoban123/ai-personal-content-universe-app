@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<PreviewFileModel> contents)?  newContents,TResult Function( PreviewFileModel content)?  loading,TResult Function()?  success,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<PreviewFileModel> contents)?  newContents,TResult Function( List<PreviewFileModel> contents,  PreviewFileModel content)?  loading,TResult Function()?  success,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _NewContents() when newContents != null:
 return newContents(_that.contents);case _Loading() when loading != null:
-return loading(_that.content);case _Success() when success != null:
+return loading(_that.contents,_that.content);case _Success() when success != null:
 return success();case _Error() when error != null:
 return error(_that.message);case _:
   return orElse();
@@ -153,12 +153,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<PreviewFileModel> contents)  newContents,required TResult Function( PreviewFileModel content)  loading,required TResult Function()  success,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<PreviewFileModel> contents)  newContents,required TResult Function( List<PreviewFileModel> contents,  PreviewFileModel content)  loading,required TResult Function()  success,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _NewContents():
 return newContents(_that.contents);case _Loading():
-return loading(_that.content);case _Success():
+return loading(_that.contents,_that.content);case _Success():
 return success();case _Error():
 return error(_that.message);}
 }
@@ -174,12 +174,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<PreviewFileModel> contents)?  newContents,TResult? Function( PreviewFileModel content)?  loading,TResult? Function()?  success,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<PreviewFileModel> contents)?  newContents,TResult? Function( List<PreviewFileModel> contents,  PreviewFileModel content)?  loading,TResult? Function()?  success,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _NewContents() when newContents != null:
 return newContents(_that.contents);case _Loading() when loading != null:
-return loading(_that.content);case _Success() when success != null:
+return loading(_that.contents,_that.content);case _Success() when success != null:
 return success();case _Error() when error != null:
 return error(_that.message);case _:
   return null;
@@ -297,8 +297,15 @@ as List<PreviewFileModel>,
 
 
 class _Loading implements NewContentsStates {
-   _Loading({required this.content});
+   _Loading({required final  List<PreviewFileModel> contents, required this.content}): _contents = contents;
   
+
+ final  List<PreviewFileModel> _contents;
+ List<PreviewFileModel> get contents {
+  if (_contents is EqualUnmodifiableListView) return _contents;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_contents);
+}
 
  final  PreviewFileModel content;
 
@@ -312,16 +319,16 @@ _$LoadingCopyWith<_Loading> get copyWith => __$LoadingCopyWithImpl<_Loading>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading&&(identical(other.content, content) || other.content == content));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading&&const DeepCollectionEquality().equals(other._contents, _contents)&&(identical(other.content, content) || other.content == content));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,content);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_contents),content);
 
 @override
 String toString() {
-  return 'NewContentsStates.loading(content: $content)';
+  return 'NewContentsStates.loading(contents: $contents, content: $content)';
 }
 
 
@@ -332,7 +339,7 @@ abstract mixin class _$LoadingCopyWith<$Res> implements $NewContentsStatesCopyWi
   factory _$LoadingCopyWith(_Loading value, $Res Function(_Loading) _then) = __$LoadingCopyWithImpl;
 @useResult
 $Res call({
- PreviewFileModel content
+ List<PreviewFileModel> contents, PreviewFileModel content
 });
 
 
@@ -349,9 +356,10 @@ class __$LoadingCopyWithImpl<$Res>
 
 /// Create a copy of NewContentsStates
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? content = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? contents = null,Object? content = null,}) {
   return _then(_Loading(
-content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+contents: null == contents ? _self._contents : contents // ignore: cast_nullable_to_non_nullable
+as List<PreviewFileModel>,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as PreviewFileModel,
   ));
 }

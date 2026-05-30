@@ -402,9 +402,13 @@ int _calculateSimilarityPercent({
   required double farthest,
   required double nearest,
 }) {
+  if (farthest == nearest) {
+    return 100;
+  }
   final double normalised = 1 - (distance - nearest) / (farthest - nearest);
+  final double clamped = normalised.clamp(0.0, 1.0);
 
-  return (normalised * 100).round();
+  return (clamped * 100).round();
 }
 
 class _ImageCardWidget extends StatelessWidget {

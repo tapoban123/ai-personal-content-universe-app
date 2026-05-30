@@ -11,8 +11,10 @@ sealed class NewContentsStates with _$NewContentsStates {
     required List<PreviewFileModel> contents,
   }) = _NewContents;
 
-  factory NewContentsStates.loading({required PreviewFileModel content}) =
-      _Loading;
+  factory NewContentsStates.loading({
+    required List<PreviewFileModel> contents,
+    required PreviewFileModel content,
+  }) = _Loading;
 
   factory NewContentsStates.success() = _Success;
 

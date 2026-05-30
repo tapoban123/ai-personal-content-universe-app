@@ -49,6 +49,47 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
   }
 
   final List<PreviewFileModel> _newData = [];
+  final Map<String, double> _lastEmittedProgress = {};
+  final Map<String, DateTime> _lastEmittedTime = {};
+
+  void _clearProgressCache() {
+    _lastEmittedProgress.clear();
+    _lastEmittedTime.clear();
+  }
+
+  void _updateProgress({
+    required String cid,
+    required double progress,
+    required Emitter emit,
+  }) {
+    final lastProgress = _lastEmittedProgress[cid] ?? -1.0;
+    final lastTime = _lastEmittedTime[cid] ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final now = DateTime.now();
+
+    final bool shouldEmit = progress == 0.0 ||
+        progress >= 1.0 ||
+        (progress - lastProgress).abs() >= 0.01 ||
+        now.difference(lastTime).inMilliseconds >= 100;
+
+    if (shouldEmit) {
+      _lastEmittedProgress[cid] = progress;
+      _lastEmittedTime[cid] = now;
+
+      final index = _newData.indexWhere((element) => element.cid == cid);
+      if (index != -1) {
+        final updatedContent = _newData[index].copyWith(
+          loadingProgress: progress,
+          isLoading: true,
+        );
+        _newData[index] = updatedContent;
+
+        emit(NewContentsStates.loading(
+          contents: List.unmodifiable(_newData),
+          content: updatedContent,
+        ));
+      }
+    }
+  }
 
   void _captureImage(CaptureImageEvent event, Emitter emit) async {
     final ImagePicker picker = ImagePicker();
@@ -154,6 +195,16 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
     Emitter emit,
   ) async {
     try {
+      for (int i = 0; i < _newData.length; i++) {
+        _newData[i] = _newData[i].copyWith(isLoading: true, loadingProgress: 0.0);
+      }
+      if (_newData.isNotEmpty) {
+        emit(NewContentsStates.loading(
+          contents: List.unmodifiable(_newData),
+          content: _newData.first,
+        ));
+      }
+
       final embeddingFutures = _newData.map(
         (content) =>
             _generateEachContentEmbedding(content: content, emit: emit),
@@ -200,9 +251,11 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
       }
 
       _contentsLocalStorageService.insertContents(contents);
-      // emit(NewContentsStates.success());
+      _clearProgressCache();
+      emit(NewContentsStates.success());
     } catch (e, stk) {
       log("[EMBEDDING GENERATION BLOC ERROR] $e\n$stk");
+      _clearProgressCache();
       emit(NewContentsStates.error(message: e.toString()));
       emit(NewContentsStates.initial());
     }
@@ -215,8 +268,38 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
     ContentEmbeddingResponseModel? embeddings;
     late Either<ApiException, ContentEmbeddingResponseModel> embeddingsResp;
 
+    double sendProgress = 0.0;
+    double receiveProgress = 0.0;
+    final bool isFileTypeHeavy = content.fileType == ContentFileType.IMAGE ||
+        content.fileType == ContentFileType.PDF;
+    final double sendWeight = isFileTypeHeavy ? 0.8 : 0.1;
+    final double receiveWeight = 1.0 - sendWeight;
+
+    void updateOverallProgress() {
+      final double overallProgress =
+          (sendProgress * sendWeight) + (receiveProgress * receiveWeight);
+      _updateProgress(
+        cid: content.cid,
+        progress: overallProgress,
+        emit: emit,
+      );
+    }
+
+    void onSend(int count, int total) {
+      if (total > 0) {
+        sendProgress = count / total;
+        updateOverallProgress();
+      }
+    }
+
+    void onReceive(int count, int total) {
+      if (total > 0) {
+        receiveProgress = count / total;
+        updateOverallProgress();
+      }
+    }
+
     if (content.fileType == ContentFileType.NOTE) {
-      int totalProgress = 0;
       final fileData = await content.file.readAsString();
       final doc = Document.fromJson(jsonDecode(fileData));
       final String plainText = doc.toPlainText();
@@ -224,10 +307,8 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
         cid: content.cid,
         text: plainText,
         contentType: content.fileType.name,
-        onReceiveProgress: (count, total) {
-          _onReceiveProgress(count, total, emit, content);
-        },
-        onSendProgress: (count, total) {},
+        onReceiveProgress: onReceive,
+        onSendProgress: onSend,
       );
     } else if (content.fileType == ContentFileType.IMAGE) {
       embeddingsResp = await _embeddingGenerationService
@@ -235,29 +316,23 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
             cid: content.cid,
             image: content.file,
             contentType: content.fileType.name,
-            onSendProgress: (count, total) {},
-            onReceiveProgress: (count, total) {
-              _onReceiveProgress(count, total, emit, content);
-            },
+            onSendProgress: onSend,
+            onReceiveProgress: onReceive,
           );
     } else if (content.fileType == ContentFileType.SCANNED_PDF) {
       embeddingsResp = await _embeddingGenerationService.generateTextEmbeddings(
         cid: content.cid,
         text: content.scannedImageTexts!,
-        onReceiveProgress: (count, total) {
-          _onReceiveProgress(count, total, emit, content);
-        },
+        onReceiveProgress: onReceive,
+        onSendProgress: onSend,
       );
     } else if (content.fileType == ContentFileType.PDF) {
-      int totalProgress = 0;
       embeddingsResp = await _embeddingGenerationService.generatePdfEmbeddings(
         contentType: content.fileType.name,
         cid: content.cid,
         pdf: content.file,
-        onReceiveProgress: (count, total) {
-          _onReceiveProgress(count, total, emit, content);
-        },
-        onSendProgress: (count, total) {},
+        onReceiveProgress: onReceive,
+        onSendProgress: onSend,
       );
     }
 
@@ -266,19 +341,6 @@ class NewContentsBloc extends Bloc<NewContentsEvents, NewContentsStates> {
       return embeddings = r;
     });
     return embeddings;
-  }
-
-  void _onReceiveProgress(
-    int count,
-    int total,
-    Emitter emit,
-    PreviewFileModel content,
-  ) {
-    emit(
-      NewContentsStates.loading(
-        content: content.copyWith(loadingProgress: count / total),
-      ),
-    );
   }
 
   void _clear(ClearAllAddedContentsEvent event, Emitter emit) {

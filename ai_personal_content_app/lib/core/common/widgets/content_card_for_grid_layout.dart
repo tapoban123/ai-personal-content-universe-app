@@ -77,7 +77,7 @@ class ContentCardForGridLayout extends StatelessWidget {
               fontSize: 16.sp,
               fontVariations: [FontVariation.weight(600)],
             ),
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           Text(

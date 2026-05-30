@@ -82,11 +82,22 @@ class AddNewContentScreen extends StatelessWidget {
               50.verticalSpace,
               Expanded(
                 child: BlocConsumer<NewContentsBloc, NewContentsStates>(
-                  buildWhen: (previous, current) => current.maybeWhen(
-                    orElse: () => false,
-                    newContents: (contents) => true,
-                    loading: (content) => true,
-                  ),
+                  buildWhen: (previous, current) {
+                    final wasLoading = previous.maybeWhen(
+                      loading: (_, __) => true,
+                      orElse: () => false,
+                    );
+                    final isLoading = current.maybeWhen(
+                      loading: (_, __) => true,
+                      orElse: () => false,
+                    );
+                    if (wasLoading != isLoading) return true;
+
+                    return current.maybeWhen(
+                      newContents: (_) => true,
+                      orElse: () => false,
+                    );
+                  },
                   listenWhen: (previous, current) =>
                       previous.maybeWhen(
                         orElse: () => false,
@@ -116,6 +127,7 @@ class AddNewContentScreen extends StatelessWidget {
                     final List<PreviewFileModel> contents = state.maybeWhen(
                       orElse: () => [],
                       newContents: (contents) => contents,
+                      loading: (contents, _) => contents,
                     );
                     final double totalCreditsUsed = contents.length * 2;
                     final double availableCredits = context
@@ -172,8 +184,8 @@ class AddNewContentScreen extends StatelessWidget {
                                   fontVariations: [FontVariation.weight(700)],
                                 ),
                               ),
-                              loading: (content) =>
-                                  appCircularProgressIndicator(),
+                              loading: (contents, content) =>
+                                  appCircularProgressIndicator(color: Colors.white),
                             ),
                           ),
                         ),
@@ -339,17 +351,43 @@ class _NewContentWidget extends StatelessWidget {
                 BlocBuilder<NewContentsBloc, NewContentsStates>(
                   buildWhen: (previous, current) => current.maybeWhen(
                     orElse: () => false,
-                    loading: (content) => content.cid == file.cid,
+                    loading: (contents, content) {
+                      final prevFile = previous.maybeWhen(
+                        loading: (prevContents, _) => prevContents.firstWhere(
+                          (e) => e.cid == file.cid,
+                          orElse: () => file,
+                        ),
+                        orElse: () => file,
+                      );
+                      final currFile = contents.firstWhere(
+                        (e) => e.cid == file.cid,
+                        orElse: () => file,
+                      );
+                      return prevFile.loadingProgress !=
+                          currFile.loadingProgress;
+                    },
                   ),
                   builder: (context, state) {
-                    return state.maybeWhen(
-                      orElse: () => SizedBox.shrink(),
-                      loading: (content) => SizedBox(
-                        width: getScreenWidth(context) * 0.5,
-                        child: LinearProgressIndicator(
-                          color: AppColors.blueColor,
-                          value: content.loadingProgress,
-                        ),
+                    final double? currentProgress = state.maybeWhen(
+                      loading: (contents, _) {
+                        final f = contents.firstWhere(
+                          (e) => e.cid == file.cid,
+                          orElse: () => file,
+                        );
+                        return f.loadingProgress;
+                      },
+                      orElse: () => file.loadingProgress,
+                    );
+
+                    if (currentProgress == null) {
+                      return SizedBox.shrink();
+                    }
+
+                    return SizedBox(
+                      width: getScreenWidth(context) * 0.5,
+                      child: LinearProgressIndicator(
+                        color: AppColors.blueColor,
+                        value: currentProgress,
                       ),
                     );
                   },
