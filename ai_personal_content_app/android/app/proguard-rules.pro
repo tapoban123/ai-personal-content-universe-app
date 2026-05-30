@@ -78,15 +78,15 @@
 
 # Gson (often used with payment SDKs for JSON)
 # -keep class sun.misc.Unsafe { *; }
-# -keep class com.google.gson.** { *; }
+ -keep class com.google.gson.** { *; }
 # -keep class * implements com.google.gson.TypeAdapter
 # -keep class * implements com.google.gson.TypeAdapterFactory
 
 # OkHttp (Razorpay may use this internally)
-# -dontwarn okhttp3.**
-# -dontwarn okio.**
-# -keep class okhttp3.** { *; }
-# -keep interface okhttp3.** { *; }
+ -dontwarn okhttp3.**
+ -dontwarn okio.**
+ -keep class okhttp3.** { *; }
+ -keep interface okhttp3.** { *; }
 
 # ============================================================
 # WebView (if Razorpay uses WebView for payments)
